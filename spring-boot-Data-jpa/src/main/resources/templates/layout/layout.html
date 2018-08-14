@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head">
+	<meta charset="UTF-8">
+	<title th:text="'Spring Boot: MVC + Thymeleaf + Data JPA - ' + ${titulo}"></title> 
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" />
+</head>
+<body>
+	<header th:fragment="header">
+		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+			<a class="navbar-brand" href="#">Spring Boot</a>
+			<button class="navbar-toggler" type="button">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item active"><a class="nav-link" href="#">Home</a></li>
+					<li class="nav-item"><a class="nav-link" href="#about" th:href="@{/listar}">Cliente</a></li>
+				</ul>
+			</div>
+		</nav>
+	</header>
+	<div class="container"></div>
+	
+	
+	<footer th:fragment="footer" class="container">
+		<hr/>
+		<img th:src="@{/images/spring.png}" alt="{Spring Logo}">
+		<p>
+			Powered by <a href="http://spring.io/projects/spring-boot">Spring Boot</a>
+			y <a href="https://www.thymeleaf.org/">Thymeleaf</a>
+		</p>
+		<p>
+			Este proyecto fue desarrollado en IDE Eclipse + Spring Plugins (STS
+			Spring Tool), profesor Andrés Guzmán.<br /> &copy; Company 2017,
+			Inc. Todos los derechos reservados. Términos de uso y privacidad.<br />
+		</p>
+		<!-- Optional JavaScript -->
+		<!-- JQuery first, then Boostrap JS -->
+		<script th:src="@{/js/jquery-3.2.1.min.js}"></script>
+		<script th:src="@{/js/bootstrap.min.js}"></script>
+	</footer>
+</body>
+</html>

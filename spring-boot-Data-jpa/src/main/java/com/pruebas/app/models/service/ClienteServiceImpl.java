@@ -18,13 +18,14 @@ public class ClienteServiceImpl implements IClienteService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<Cliente> findAll() {
-		return clienteDao.findAll();
+		return (List<Cliente>) clienteDao.findAll();
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public Cliente findOne(Long id) {
-		return clienteDao.findOne(id);
+		// Esto es en Spring 5, anteriormente es findOne
+		return clienteDao.findById(id).orElse(null);
 	}
 
 	@Override
@@ -36,7 +37,8 @@ public class ClienteServiceImpl implements IClienteService {
 	@Override
 	@Transactional
 	public void delete(Long id) {
-		clienteDao.delete(id);
+		// Esto es en Spring 5, anteriormente es findOne
+		clienteDao.deleteById(id);
 	}
 
 }
