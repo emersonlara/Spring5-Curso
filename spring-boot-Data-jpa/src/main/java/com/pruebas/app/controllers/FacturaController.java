@@ -3,10 +3,14 @@ package com.pruebas.app.controllers;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,6 +43,23 @@ public class FacturaController {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	@GetMapping("/ver/{id}")
+	public String ver(@PathVariable(value = "id") Long id, Model model, RedirectAttributes flash) {
+		String path = "";
+		Factura factura = this.facturaService.fetchByIdWithClienteWithItemFacturaWithProducto(id);
+
+		if (factura == null) {
+			flash.addFlashAttribute("error", "La factura no existe en la base de datos.");
+			path = "redirect:/listar";
+		} else {
+			model.addAttribute("factura", factura);
+			model.addAttribute("titulo", "Factura: ".concat(factura.getDescripcion()));
+			path = "factura/ver";
+		}
+
+		return path;
+	}
+
 	@GetMapping("/form/{clienteId}")
 	public String crear(@PathVariable(value = "clienteId") Long clienteId, Map<String, Object> model,
 			RedirectAttributes flash) {
@@ -64,35 +85,66 @@ public class FacturaController {
 	}
 
 	@PostMapping("/form")
-	public String guardar(Factura factura, @RequestParam(name = "item_id[]", required = false) Long[] itemId,
+	public String guardar(@Valid Factura factura, BindingResult result, Model model,
+			@RequestParam(name = "item_id[]", required = false) Long[] itemId,
 			@RequestParam(name = "cantidad[]", required = false) Integer[] cantidad, RedirectAttributes flash,
 			SessionStatus status) {
-		String result = "";
+		String path = "";
 
-		for (int i = 0; i < itemId.length; i++) {
-			// FIXME El producto puede ser nulo porque el id no exita en la bd, no se está
-			// controlando
-			Producto producto = this.productoService.findById(itemId[i]);
+		if (result.hasErrors()) {
+			model.addAttribute("titulo", "Crear factura");
+			path = "factura/form";
+		} else {
 
-			ItemFactura linea = new ItemFactura();
-			linea.setCantidad(cantidad[i]);
-			linea.setProducto(producto);
+			if (itemId == null || itemId.length == 0) {
+				model.addAttribute("titulo", "Crear Factura");
+				model.addAttribute("error", "Error: La factura NO puede no tener líneas");
+				path = "factura/form";
+			} else {
 
-			factura.addItemFactura(linea);
+				for (int i = 0; i < itemId.length; i++) {
+					// FIXME El producto puede ser nulo porque el id no exita en la bd, no se está
+					// controlando
+					Producto producto = this.productoService.findById(itemId[i]);
 
-			log.info("ID: " + itemId[i].toString() + ", cantidad: " + cantidad[i].toString());
+					ItemFactura linea = new ItemFactura();
+					linea.setCantidad(cantidad[i]);
+					linea.setProducto(producto);
+
+					factura.addItemFactura(linea);
+
+					log.info("ID: " + itemId[i].toString() + ", cantidad: " + cantidad[i].toString());
+				}
+
+				this.facturaService.save(factura);
+
+				// Eliminamos de la session el estatus de la factura
+				status.setComplete();
+				// Enviamos mensaje de éxito
+				flash.addFlashAttribute("success", "Factura creada con éxito");
+
+				path = "redirect:/ver/" + factura.getCliente().getId();
+			}
+		}
+		return path;
+	}
+
+	@GetMapping("/eliminar/{id}")
+	public String eliminar(@PathVariable(value = "id") Long id, RedirectAttributes flash) {
+		String path = "";
+		Factura factura = this.facturaService.findById(id);
+
+		if (factura != null) {
+			this.facturaService.deleteFactura(id);
+			flash.addFlashAttribute("success", "Factura eliminada con éxito!");
+			path = "redirect:/ver/" + factura.getCliente().getId();
+		} else {
+
+			flash.addFlashAttribute("error", "La factura no existe en la base de datos, no se pudo eliminar!");
+			path = "redirect:/listar";
 		}
 
-		this.facturaService.save(factura);
-
-		// Eliminamos de la session el estatus de la factura
-		status.setComplete();
-		// Enviamos mensaje de éxito
-		flash.addFlashAttribute("success", "Factura creada con éxito");
-
-		result = "redirect:/ver/" + factura.getCliente().getId();
-
-		return result;
+		return path;
 	}
 
 }

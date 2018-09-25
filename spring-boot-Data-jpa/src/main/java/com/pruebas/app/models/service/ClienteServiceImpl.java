@@ -31,6 +31,12 @@ public class ClienteServiceImpl implements IClienteService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
+	public Cliente fetchByIdWhitFacturas(Long id) {
+		return this.clienteDao.fetchByIdWhitFacturas(id);
+	}
+
+	@Override
 	@Transactional
 	public void save(Cliente cliente) {
 		clienteDao.save(cliente);
@@ -48,5 +54,6 @@ public class ClienteServiceImpl implements IClienteService {
 	public Page<Cliente> findAll(Pageable pageable) {
 		return clienteDao.findAll(pageable);
 	}
+
 
 }
