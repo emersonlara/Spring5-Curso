@@ -58,7 +58,7 @@ public class ClienteController {
 		return redirect;
 	}
 
-	@RequestMapping(value = "/listar", method = RequestMethod.GET)
+	@RequestMapping(value = { "/listar", "/" }, method = RequestMethod.GET)
 	public String listar(@RequestParam(name = "page", defaultValue = "0") Integer page, Model model) {
 
 		Pageable pageRequest = PageRequest.of(page, 4);

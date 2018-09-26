@@ -26,7 +26,7 @@ public class ClienteServiceImpl implements IClienteService {
 	@Override
 	@Transactional(readOnly = true)
 	public Cliente findOne(Long id) {
-		// Esto es en Spring 5, anteriormente es findOne
+		// findById es en Spring 5, anteriormente es findOne
 		return clienteDao.findById(id).orElse(null);
 	}
 
