@@ -9,12 +9,16 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -35,6 +39,8 @@ import com.pruebas.app.util.paginator.PageRender;
 @Controller
 @SessionAttributes("cliente")
 public class ClienteController {
+
+	private final Log logger = LogFactory.getLog(this.getClass());
 
 	// @Qualifier("clienteDaoJPA") // Para seleccionar la interfaz a usar, por
 	// ejemplo si usamos 2 conectores
@@ -59,7 +65,19 @@ public class ClienteController {
 	}
 
 	@RequestMapping(value = { "/listar", "/" }, method = RequestMethod.GET)
-	public String listar(@RequestParam(name = "page", defaultValue = "0") Integer page, Model model) {
+	public String listar(@RequestParam(name = "page", defaultValue = "0") Integer page, Model model,
+			Authentication authentication) {
+
+		if (authentication != null) {
+			logger.info(String.format("Hola usuario autenticado, tu username es: %s", authentication.getName()));
+		}
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+		if (authentication != null) {
+			logger.info(String.format("Utilizando forma estática Hola usuario autenticado, tu username es: %s",
+					auth.getName()));
+		}
 
 		Pageable pageRequest = PageRequest.of(page, 4);
 
